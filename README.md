@@ -1,91 +1,45 @@
-# How to mark test as Passed or Failed in Java JUnit with Appium on [LambdaTest](https://www.lambdatest.com/?utm_source=github&utm_medium=repo&utm_campaign=appium-junit-passfail)
+# How to close/open the app during a session in Real Devices on [LambdaTest](https://www.lambdatest.com/?utm_source=github&utm_medium=repo&utm_campaign=LT-appium-java-junit-openApp) using the Appium Java JUnit Framework
 
-While performing app automation testing with appium on LambdaTest Grid, you may face a scenario where a test that you declared as fail in your local instance may turn out to be completed successfully at LambdaTest. Don't worry though! We understand how imperative it is to flag an app automation test as either "pass" or "fail" depending upon your testing requirement with respect to the validation of expected behaviour. You can refer to sample test repo [here](https://github.com/LambdaTest/LT-appium-java-junit).
+While performing automation testing with Appium on LambdaTest Grid, you might face a scenario where you'd want to close the application or open the application during a test run.
+This can be essential sometimes to see how your application behaves in different scenarios. Let's see how we can leverage Appium's commands to achieve it on LambdaTest.
 
-# Steps:
+**Tip:**
 
-You can specify a test as passed or failed by Lambda hooks. The following is an example on how to set test result as passed or failed. If the code reaches exception, then it will be marked as failed, else as passed.
+- If you do not have any **.apk** or **.ipa** file, you can run your sample tests on LambdaTest by using our sample :link: [Android app](https://prod-mobile-artefacts.lambdatest.com/assets/docs/proverbial_android.apk) or sample :link: [iOS app](https://prod-mobile-artefacts.lambdatest.com/assets/docs/proverbial_ios.ipa).
+- Response of above cURL will be a **JSON** object containing the `App URL` of the format - <lt://APP123456789123456789> and will be used in the next step.
+- Alternatively you can also use the `Custom ID` that you defined in your own words.
+
+## Run Your First Test
+
+Once you are done with the above-mentioned steps, you can initiate your first Java test on LambdaTest.
+
+### Configuring Your Test Capabilities
+
+You can update your custom capabilities in test scripts. In this sample project, we are passing platform name, platform version, device name and app url (generated earlier) along with other capabilities like build name and test name via capabilities object. The capabilities object in the sample code are defined as:
+
 
 ```java
-package com.lambdatest;
-
-import io.appium.java_client.MobileBy;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.By;
-
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-
-public class android {
-    String username = System.getenv("LT_USERNAME") == null ? "LT_USERNAME" //Enter the Username here
-            : System.getenv("LT_USERNAME");
-    String accessKey = System.getenv("LT_ACCESS_KEY") == null ? "LT_ACCESS_KEY"  //Enter the Access key here
-            : System.getenv("LT_ACCESS_KEY");
-    public static RemoteWebDriver driver = null;
-    public String gridURL = "@mobile-hub.lambdatest.com/wd/hub";
-    
-    //MARKING DEFAULT STATUS AS PASSED
-    public String status = "passed";
-    
-    @Before
-    public void setUp() throws Exception {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-
-        capabilities.setCapability("build", "JUNIT Native App automation");
-        capabilities.setCapability("name", "Java JUnit Android Pixel 6");
-        capabilities.setCapability("platformName", "android");
-        capabilities.setCapability("deviceName", "Pixel 6");
-        capabilities.setCapability("isRealMobile", true);
-        capabilities.setCapability("platformVersion","12");
-        capabilities.setCapability("app","App_ID"); //Enter the App ID here
-        capabilities.setCapability("deviceOrientation", "PORTRAIT");
-        capabilities.setCapability("console",true);
-        capabilities.setCapability("network",true);
-        capabilities.setCapability("visual",true);
-        try
-        {
-            driver = new RemoteWebDriver(new URL("https://" + username + ":" + accessKey + gridURL), capabilities);
-        }
-        catch (MalformedURLException e)
-        {
-            System.out.println("Invalid grid URL");
-        } catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testSimple() throws Exception
+public void testSimple() throws Exception
     {
         try
         {
             WebDriverWait wait = new WebDriverWait(driver, 30);
             wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("color"))).click();
-
             wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("geoLocation"))).click();;
             Thread.sleep(5000);
             driver.navigate().back();
-
             wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("Text"))).click();
-
+            //Close the application
+            driver.closeApp();
+            //Open the application
+            driver.launchApp();
+            wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("notification"))).click();;
             wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("toast"))).click();
-
-            //MARKING STATUS AS PASSED
             status="passed"; 
         }
             catch (Exception e)
              {
                 System.out.println(e.getMessage());
-                
-                //MARKING STATUS AS FAILED
                 status="failed";
              }
     }
@@ -98,46 +52,45 @@ public class android {
             driver.quit();
         }
     }
-}
 ```
 
-## Executing The Test
+For more information on the Appium Commands used here, head over to:
+* [Launch App | Appium](https://appium.io/docs/en/commands/device/app/launch-app/)
+* [Close App | Appium](https://appium.io/docs/en/commands/device/app/close-app/)
+
+##Executing The Test
 
 Execute the following commands to install the required dependencies:
 
-```bash
-mvn clean
-```
-
+```mvn clean install```
 The tests can be executed in the terminal using the following command:
-
 Android:
 ```bash
-mvn test android.java
+mvn test -P android
 ```
 
 iOS:
+
 ```bash
-mvn test ios.java
+mvn test -P ios
 ```
 
+Your test results would be displayed on the test console (or command-line interface if you are using terminal/cmd) and on the [LambdaTest App Automation Dashboard](https://appautomation.lambdatest.com/build).
 
-**Info:** Your test results would be displayed on the test console (or command-line interface if you are using terminal/cmd) and on the :link: [LambdaTest App Automation Dashboard](https://appautomation.lambdatest.com/build).
-
-# Additional Links
+## Additional Links
 
 - [Advanced Configuration for Capabilities](https://www.lambdatest.com/support/docs/desired-capabilities-in-appium/)
 - [How to test locally hosted apps](https://www.lambdatest.com/support/docs/testing-locally-hosted-pages/)
 - [How to integrate LambdaTest with CI/CD](https://www.lambdatest.com/support/docs/integrations-with-ci-cd-tools/)
 
 ## Documentation & Resources :books:
-      
+
 Visit the following links to learn more about LambdaTest's features, setup and tutorials around test automation, mobile app testing, responsive testing, and manual testing.
 
 * [LambdaTest Documentation](https://www.lambdatest.com/support/docs/?utm_source=github&utm_medium=repo&utm_campaign=LT-appium-python)
 * [LambdaTest Blog](https://www.lambdatest.com/blog/?utm_source=github&utm_medium=repo&utm_campaign=LT-appium-python)
 * [LambdaTest Learning Hub](https://www.lambdatest.com/learning-hub/?utm_source=github&utm_medium=repo&utm_campaign=LT-appium-python)
-* [LambdaTest Community](http://community.lambdatest.com/)    
+* [LambdaTest Community](http://community.lambdatest.com/)
 
 ## LambdaTest Community :busts_in_silhouette:
 
@@ -145,11 +98,11 @@ The [LambdaTest Community](https://community.lambdatest.com/) allows people to i
 
 ## What's New At LambdaTest ❓
 
-To stay updated with the latest features and product add-ons, visit [Changelog](https://changelog.lambdatest.com/) 
-      
+To stay updated with the latest features and product add-ons, visit [Changelog](https://changelog.lambdatest.com/)
+
 ## About LambdaTest
 
-[LambdaTest](https://www.lambdatest.com) is a leading test execution and orchestration platform that is fast, reliable, scalable, and secure. It allows users to run both manual and automated testing of web and mobile apps across 3000+ different browsers, operating systems, and real device combinations. Using LambdaTest, businesses can ensure quicker developer feedback and hence achieve faster go to market. Over 500 enterprises and 1 Million + users across 130+ countries rely on LambdaTest for their testing needs.    
+[LambdaTest](https://www.lambdatest.com) is a leading test execution and orchestration platform that is fast, reliable, scalable, and secure. It allows users to run both manual and automated testing of web and mobile apps across 3000+ different browsers, operating systems, and real device combinations. Using LambdaTest, businesses can ensure quicker developer feedback and hence achieve faster go to market. Over 500 enterprises and 1 Million + users across 130+ countries rely on LambdaTest for their testing needs.
 
 ### Features
 
@@ -165,10 +118,10 @@ To stay updated with the latest features and product add-ons, visit [Changelog](
 * Online Accessibility Testing across 3000+ desktop and mobile browsers, browser versions, and operating systems.
 * Geolocation testing of web and mobile apps across 53+ countries.
 * LT Browser - for responsive testing across 50+ pre-installed mobile, tablets, desktop, and laptop viewports
-    
+
 [<img height="53" width="200" src="https://user-images.githubusercontent.com/70570645/171866795-52c11b49-0728-4229-b073-4b704209ddde.png">](https://accounts.lambdatest.com/register)
-      
+
 ## We are here to help you :headphones:
 
 * Got a query? we are available 24x7 to help. [Contact Us](support@lambdatest.com)
-* For more info, visit - [LambdaTest](https://www.lambdatest.com/?utm_source=github&utm_medium=repo&utm_campaign=LT-appium-python)
+* For more info, visit - [LambdaTest](https://www.lambdatest.com/?utm_source=github&utm_medium=repo&utm_campaign=LT-appium-java-junit-openApp)

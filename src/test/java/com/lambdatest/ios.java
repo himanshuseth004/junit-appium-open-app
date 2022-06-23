@@ -1,5 +1,6 @@
 package com.lambdatest;
 
+import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileBy;
 import org.junit.After;
 import org.junit.Before;
@@ -19,12 +20,9 @@ public class ios {
             : System.getenv("LT_USERNAME");
     String accessKey = System.getenv("LT_ACCESS_KEY") == null ? "LT_ACCESS_KEY"   //Enter the Access key here
             : System.getenv("LT_ACCESS_KEY");
-    public static RemoteWebDriver driver = null;
+    public static AppiumDriver driver = null;
     public String gridURL = "@mobile-hub.lambdatest.com/wd/hub";
-
-    //MARKING TEST AS PASSED
     public String status = "passed";
-    
     @Before
     public void setUp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -35,14 +33,15 @@ public class ios {
         capabilities.setCapability("deviceName", "iPhone 12");
         capabilities.setCapability("isRealMobile", true);
         capabilities.setCapability("platformVersion","15");
-        capabilities.setCapability("app","lt://"); //Enter the APP_ID here
+        capabilities.setCapability("app", "lt://");  //Enter the APP ID here
         capabilities.setCapability("deviceOrientation", "PORTRAIT");
         capabilities.setCapability("console",true);
         capabilities.setCapability("network",true);
         capabilities.setCapability("visual",true);
+
         try
         {
-            driver = new RemoteWebDriver(new URL("https://" + username + ":" + accessKey + gridURL), capabilities);
+            driver = new AppiumDriver(new URL("https://" + username + ":" + accessKey + gridURL), capabilities);
         }
         catch (MalformedURLException e)
         {
@@ -65,28 +64,21 @@ public class ios {
             Thread.sleep(5000);
             driver.navigate().back();
 
+            //Close the application
+            driver.closeApp();
+
+            //Open the application
+            driver.launchApp();
+
             wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("Text"))).click();
 
             wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("notification"))).click();
 
-            wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("toast"))).click();
-
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("Browser"))).click();
-            Thread.sleep(10000);
-
-            wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("url"))).sendKeys("https://www.lambdatest.com/");;
-
-            wait.until(ExpectedConditions.elementToBeClickable(MobileBy.id("find"))).click();
-            Thread.sleep(5000);
-            driver.navigate().back();
-
-            //MARKING TEST AS PASSED
             status="passed"; 
         }
             catch (Exception e)
              {
                 System.out.println(e.getMessage());
-                //MARKING TEST AS FAILED
                 status="failed";
              }
     }
@@ -100,4 +92,3 @@ public class ios {
         }
     }
 }
-
